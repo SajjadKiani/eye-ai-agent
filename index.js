@@ -1,6 +1,7 @@
 
 import TwitterScraper from "./TwitterScraper.js";
 import dotenv from 'dotenv'
+import { parseTweetsLinks } from "./utils.js";
 
 dotenv.config();
 const username = process.env.TWITTER_USERNAME;
@@ -11,8 +12,9 @@ const password = process.env.TWITTER_PASSWORD;
         const ts = new TwitterScraper(username, password)
         await ts.auth()
         
+        const link = parseTweetsLinks('https://x.com/jyu_eth/status/1873462146249752915')
         console.log(
-            ts.getTweet('https://x.com/Defi0xJeff/status/1874012183711146080')
+            await ts.getTweet(link)
         )
     }
     catch (error) {

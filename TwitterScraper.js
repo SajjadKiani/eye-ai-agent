@@ -27,10 +27,19 @@ class TwitterScraper {
         }
     }
 
-    async getTweet (url) {
+    async getTweet (tweetId) {
         try {
-            const tweet = await this.scraper.getTweet(url)
+            const tweet = await this.scraper.getTweet(tweetId)
             return tweet
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getListTweets (listId) {
+        try {
+            const tweets = await this.scraper.fetchListTweets(listId)
+            return tweets
         } catch (e) {
             console.log(e);
         }

@@ -21,6 +21,8 @@ class TelBot {
     async getChannelText() {
         try {
             this.bot.on('channel_post', async (msg) => {
+                console.log(msg.chat.id);
+                
                 if (msg.chat.id === this.srcChannelId) {
                     console.log('Received message from source channel:', msg.text);
                 }

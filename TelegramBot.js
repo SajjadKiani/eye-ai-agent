@@ -4,12 +4,20 @@ import TwitterScraper from "./TwitterScraper.js";
 import { parseTweetsLinks } from './utils.js'
 
 class TelBot {
-    constructor(token, desChannelId, srcChannelId, username, password, githubToken) {
+    constructor(token, desChannelId, srcChannelId, username, password, email, apiKey, apiSecretKey, accessToken, accessTokenSecret, githubToken) {
         this.bot = new TelegramBot(token, {polling: true})
         this.token = token;
         this.desChannelId = desChannelId;
         this.srcChannelId = srcChannelId;
-        this.ts = new TwitterScraper(username, password);
+        this.ts = new TwitterScraper(
+            username,
+            password,
+            email,
+            apiKey,
+            apiSecretKey,
+            accessToken,
+            accessTokenSecret
+        );
         this.summarizer = new Summarizer(githubToken);
     }
 
@@ -28,16 +36,16 @@ class TelBot {
         }
     }
 
-    async openEyes() {
-        try {
-            await this.ts.auth();
-        } catch (error) {
-            console.error('Authentication failed:', error);
-            throw error;
-        }
+    // async openEyes() {
+    //     try {
+    //         await this.ts.auth();
+    //     } catch (error) {
+    //         console.error('Authentication failed:', error);
+    //         throw error;
+    //     }
 
-        this.bot.on('channel_post', this.handleChannelPost.bind(this));
-    }
+    //     this.bot.on('channel_post', this.handleChannelPost.bind(this));
+    // }
 
     isValidMessage(msg) {
         return this.srcChannelId.split("|").includes(msg.chat?.username);
@@ -94,7 +102,78 @@ class TelBot {
             .map(tweet => `\n• @${tweet.author}: ${tweet.link}`)
             .join('');
 
-        return `${summary}\n\nSources:${tweetSources}`;
+        return `${summary}`;
+    }
+
+    async getUserTweets(username) {
+        try {
+            // Get user profile first to get userId
+            const profile = await this.ts.getProfile(username);
+            if (!profile?.userId) {
+                throw new Error('Could not find Twitter profile for ' + username);
+            }
+            // Get user's tweets
+            const tweetsObj = await this.ts.getProfileTweets(profile.userId);
+            const tweets = tweetsObj.tweets
+            
+            if (!tweets?.length) {
+                throw new Error('No tweets found for user ' + username);
+            }
+
+            // Format tweets for summarization
+            const formattedTweets = tweets.slice(0, 20).map(tweet => ({
+                text: tweet.text,
+                author: username,
+                link: `https://twitter.com/${username}/status/${tweet.id}`
+            }));
+
+            // Get summary of tweets
+            const summarized = await this.summarizer.summarize(formattedTweets.map(t => t.text));
+
+            // Create formatted message with summary and tweet sources
+            const formattedMessage = this.formatMessage(summarized, formattedTweets);
+            return formattedMessage;
+
+        } catch (error) {
+            console.error('Error getting user tweets:', error);
+            throw error;
+        }
+    }
+
+    async handleUserTweetsCommand(msg) {
+        try {
+            // Extract username from command (assuming format: /gettweets username)
+            const username = msg.text.split(' ')[1];
+            if (!username) {
+                await this.bot.sendMessage(msg.chat.id, 'Please provide a Twitter username');
+                return;
+            }
+
+            // Get and summarize tweets
+            const message = await this.getUserTweets(username);
+            await this.sendMessage(message);
+
+        } catch (error) {
+            console.error('Error handling user tweets command:', error);
+            await this.bot.sendMessage(msg.chat.id, 'Error processing request: ' + error.message);
+        }
+    }
+
+    async openEyes() {
+        try {
+            // Initialize Twitter scraper
+            await this.ts.auth();
+            
+            // Set up command handlers
+            this.bot.on('message', (msg) => {
+                this.handleUserTweetsCommand(msg);
+            });
+
+            console.log('Bot is running...');
+        } catch (error) {
+            console.error('Error starting bot:', error);
+            throw error;
+        }
     }
 }
 

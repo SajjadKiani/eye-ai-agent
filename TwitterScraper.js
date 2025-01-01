@@ -21,7 +21,7 @@ class TwitterScraper {
     }
 
     async auth() {
-        const isLoggedIn = true
+        const isLoggedIn = false
         // const isLoggedIn = await this.loadCookies()
 
         if (!isLoggedIn) {
@@ -109,7 +109,7 @@ class TwitterScraper {
 
     async getProfileFollowers (userId) {
         try {
-            const followers = this.scraper.getFollowers(userId, 10)
+            const followers = this.scraper.fetchProfileFollowers(userId, 10)
             return followers
         } catch (e) {
             console.log(e)

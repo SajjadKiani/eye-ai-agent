@@ -102,7 +102,7 @@ class TelBot {
             .map(tweet => `\n• @${tweet.author}: ${tweet.link}`)
             .join('');
 
-        return `${summary}`;
+        return `${summary}\n\n• https://x.com/${tweets[0].author}`;
     }
 
     async getUserTweets(username) {
@@ -119,7 +119,6 @@ class TelBot {
             if (!tweets?.length) {
                 throw new Error('No tweets found for user ' + username);
             }
-
             // Format tweets for summarization
             const formattedTweets = tweets.slice(0, 20).map(tweet => ({
                 text: tweet.text,
@@ -149,9 +148,17 @@ class TelBot {
                 return;
             }
 
-            // Get and summarize tweets
-            const message = await this.getUserTweets(username);
-            await this.sendMessage(message);
+            const userProfile = await this.ts.getProfile(username)
+            await this.sendMessage('fetching followers for: @' + username + ":");
+            
+            const followers = await this.ts.getProfileFollowers(userProfile.userId)
+            
+            for (const follower of followers.profiles.slice(0, 3)) {
+                console.log('fetching: @' + follower.username);
+                
+                const message = await this.getUserTweets(follower.username);
+                await this.sendMessage(message);
+            }
 
         } catch (error) {
             console.error('Error handling user tweets command:', error);

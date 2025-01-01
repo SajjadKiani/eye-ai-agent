@@ -20,15 +20,15 @@ const desChannelId = process.env.DES_CHANNEL_ID;
 
 (async() => {
 
-    const ts = new TwitterScraper(
-        username,
-        password,
-        email,
-        apiKey,
-        apiSecretKey,
-        accessToken,
-        accessTokenSecret
-    )
+    // const ts = new TwitterScraper(
+    //     username,
+    //     password,
+    //     email,
+    //     apiKey,
+    //     apiSecretKey,
+    //     accessToken,
+    //     accessTokenSecret
+    // )
 
     // await ts.auth()
 
@@ -54,8 +54,14 @@ const desChannelId = process.env.DES_CHANNEL_ID;
     // const profile = await ts.getProfile('CJCJCJCJ_')
     // console.log(profile);
     // console.log(profile.userId);
+
+    // await ts.auth()
     
-    // const followers = await ts.getProfileFollowers('1460252469745782790')
+    // const user = await ts.getProfile('CJCJCJCJ_')
+    // console.log(user);
+    
+    
+    // const followers = await ts.getProfileFollowers(user.userId)
     // console.log(followers);
 
     // const following = await ts.getProfileFollowing('1460252469745782790')
@@ -76,13 +82,4 @@ const desChannelId = process.env.DES_CHANNEL_ID;
     )
     await bt.openEyes()
     
-    
-    
-    // try {
-    //     const tb = new TelBot(telegramBotToken, desChannelId, srcChannelId, username, password, githubToken);
-    //     await tb.openEyes();
-    // }
-    // catch (error) {
-    //     console.error(error);
-    // }
 })()

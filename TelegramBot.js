@@ -149,7 +149,7 @@ class TelBot {
             }
 
             const userProfile = await this.ts.getProfile(username)
-            await this.sendMessage('fetching followers for: @' + username + ":");
+            await this.sendMessage(`fetching followers for: https://x.com/${username}`);
             
             const followers = await this.ts.getProfileFollowers(userProfile.userId)
             

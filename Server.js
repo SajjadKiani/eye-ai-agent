@@ -85,7 +85,9 @@ class Server {
                     });
                     
                     const message = await this.getUserTweets(username, f);
-                    await this.tb.sendMessage(message);
+                    if (message) {
+                        await this.tb.sendMessage(message);
+                    }
                 }
 
                 await updateUserAPI(dbProfile.data[0].id, {
@@ -119,26 +121,27 @@ class Server {
             
             if (!tweets?.length) {
                 await this.logger.warn('No tweets found', { username });
-                throw new Error('No tweets found for user ' + username);
+                // throw new Error('No tweets found for user ' + username);
+                return 
+            } else {
+                const formattedTweets = tweets.slice(0, 20).map(tweet => ({
+                    srcF,
+                    text: tweet.text,
+                    author: username,
+                    link: `https://twitter.com/${username}/status/${tweet.id}`
+                }));
+    
+                // Get summary of tweets
+                const summarized = await this.summarizer.summarize(formattedTweets.map(t => t.text));
+    
+                // Create formatted message with summary and tweet sources
+                const formattedMessage = this.tb.formatMessage(summarized, formattedTweets);
+                await this.logger.info('Successfully processed tweets', { 
+                    username,
+                    tweetCount: tweets.length
+                });
+                return formattedMessage;
             }
-            // Format tweets for summarization
-            const formattedTweets = tweets.slice(0, 20).map(tweet => ({
-                srcF,
-                text: tweet.text,
-                author: username,
-                link: `https://twitter.com/${username}/status/${tweet.id}`
-            }));
-
-            // Get summary of tweets
-            const summarized = await this.summarizer.summarize(formattedTweets.map(t => t.text));
-
-            // Create formatted message with summary and tweet sources
-            const formattedMessage = this.tb.formatMessage(summarized, formattedTweets);
-            await this.logger.info('Successfully processed tweets', { 
-                username,
-                tweetCount: tweets.length
-            });
-            return formattedMessage;
         } catch (error) {
             await this.logger.error('Error getting user tweets', {
                 username,

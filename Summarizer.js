@@ -17,7 +17,7 @@ class Summarizer {
         const response = await this.client.path("/chat/completions").post({
             body: {
                 messages: [
-                    { role: "system", content: "You are a helpful assistant that summarizes tweets. Provide a concise summary of the key points and themes." },
+                    { role: "system", content: "You are a helpful assistant that summarizes tweets. Summarize the tweets briefly, focusing on key points and themes. Additionally, identify and list any projects, initiatives, or specific work mentioned by the person in the tweets." },
                     { role: "user", content: `Please summarize these tweets:\n${tweetContent}` }
                 ],
                 model: this.modelName,

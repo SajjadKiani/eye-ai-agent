@@ -17,8 +17,19 @@ class Summarizer {
         const response = await this.client.path("/chat/completions").post({
             body: {
                 messages: [
-                    { role: "system", content: "You are a helpful assistant that summarizes tweets. Summarize the tweets briefly, focusing on key points and themes. Additionally, identify and list any projects, initiatives, or specific work mentioned by the person in the tweets." },
-                    { role: "user", content: `Please summarize these tweets:\n${tweetContent}` }
+                    { role: "user", content: `
+                        You are a helpful assistant that summarizes cryptocurrency related tweets.
+                        Adhere to the following instructions STRICTLY.
+
+                        ### INSTRUCTIONS ###
+                        - Identify and list any projects, initiatives, or specific work mentioned in the tweets.
+                        - Ensure your summary is concise and brief, yet extracting all points.
+                        - Ensure to use of Abbreviations of common words in cryptocurrency and the tech area, Do NOT mention the original phrase of the Abbreviation; for example, use TG instead of Telegram Group.
+                        - Immediately start summarizing tweets, without any starter or footer sentence.
+
+                        ### TWEETS ###
+                        ${tweetContent}
+                        ` }
                 ],
                 model: this.modelName,
             }

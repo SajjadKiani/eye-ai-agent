@@ -28,7 +28,7 @@ class TelBot {
             .map(tweet => `\n• @${tweet.author}: ${tweet.link}`)
             .join('');
 
-        return `@${tweets[0].srcF} just followed ${tweets[0].author} \n\n ${summary}\n\n• https://x.com/${tweets[0].author}`;
+        return `@${tweets[0].srcF} just followed @${tweets[0].author} \n\n ${summary}\n\n• https://x.com/${tweets[0].author}`;
     }
 }
 

@@ -78,7 +78,7 @@ class Server {
                     newFollowing
                 });
                 
-                for (const f of newFollowing.slice(-3)) {
+                for (const f of newFollowing) {
                     await this.logger.info('Fetching following tweets', { 
                         targetUser: username,
                         following: f

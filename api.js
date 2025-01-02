@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const Instance = axios.create({
-    baseURL: 'http://192.210.226.187:3000',
+    baseURL: 'https://my-agent.liara.run/',
 })
 
 export const getUserAPI = (username) => 

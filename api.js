@@ -7,6 +7,9 @@ const Instance = axios.create({
 export const getUserAPI = (username) => 
     Instance.get('/users/?username='+ username)
 
+export const getUsersAPI = () =>
+    Instance.get('/users')
+
 export const createUserAPI = (data) => {
     return Instance.post('/users', {
         ...data,

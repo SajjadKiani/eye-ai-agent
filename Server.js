@@ -1,4 +1,4 @@
-import { createUserAPI, getUserAPI, updateUserAPI } from "./api.js";
+import { createUserAPI, getUserAPI, getUsersAPI, updateUserAPI } from "./api.js";
 import TelBot from "./TelegramBot.js";
 import Summarizer from "./Summarizer.js"
 import TwitterScraper from './TwitterScraper.js'
@@ -176,7 +176,7 @@ class Server {
             if (msg.text.startsWith('/all')) {
                 await this.logger.info('fetch User from db');
 
-                const users = await getUserAPI();
+                const users = await getUsersAPI();
     
                 for (const user of users.data) {
                     const interval = setInterval(

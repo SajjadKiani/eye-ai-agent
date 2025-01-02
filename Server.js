@@ -42,7 +42,7 @@ class Server {
                 () => this.createInstance(msg, username),
                 1000 * 60 * 30
             );
-            this.instances.push(interval);
+            this.instances.push({username, interval});
             await this.tb.bot.sendMessage(msg.chat.id, `@${username} stored to db successfully`);
             await this.logger.info('Instance created successfully', { username });
         } catch (err) {
@@ -181,6 +181,21 @@ class Server {
             });
 
             await this.logger.info('Bot is running');
+
+            await this.logger.info('fetch User from db');
+
+            const users = await getUserAPI();
+
+            for (const user of users.data) {
+                const interval = setInterval(
+                    () => this.createInstance(msg, user.username),
+                    1000 * 60 * 30
+                );
+                this.instances.push({username, interval});
+                await this.tb.bot.sendMessage(msg.chat.id, `@${username} stored to db successfully`);
+            }
+
+            await this.logger.info('Instances created successfully');
         } catch (error) {
             await this.logger.error('Failed to start server', {
                 error: error.message,

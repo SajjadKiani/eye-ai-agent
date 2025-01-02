@@ -171,6 +171,30 @@ class Server {
         }
     }
 
+    async handleAllCommand(msg) {
+        try {
+            if (msg.text.startsWith('/all')) {
+                await this.logger.info('fetch User from db');
+
+                const users = await getUserAPI();
+    
+                for (const user of users.data) {
+                    const interval = setInterval(
+                        () => this.createInstance(msg, user.username),
+                        1000 * 60 * 30
+                    );
+                    this.instances.push({username, interval});
+                    await this.tb.bot.sendMessage(msg.chat.id, `@${username} stored to db successfully`);
+                }
+    
+                await this.logger.info('Instances created successfully');
+            }
+        } catch (error) {
+            console.error('Error handling all command:', error);
+            await this.tb.bot.sendMessage(msg.chat.id, 'Error processing request: ' + error.message);
+        }
+    }
+
     async openEyes() {
         try {
             await this.logger.info('Starting server');
@@ -180,22 +204,13 @@ class Server {
                 this.handleAddCommand(msg);
             });
 
+            this.tb.bot.on('message', (msg) => {
+                this.handleAllCommand(msg);
+            });
+
             await this.logger.info('Bot is running');
 
-            await this.logger.info('fetch User from db');
-
-            const users = await getUserAPI();
-
-            for (const user of users.data) {
-                const interval = setInterval(
-                    () => this.createInstance(msg, user.username),
-                    1000 * 60 * 30
-                );
-                this.instances.push({username, interval});
-                await this.tb.bot.sendMessage(msg.chat.id, `@${username} stored to db successfully`);
-            }
-
-            await this.logger.info('Instances created successfully');
+            
         } catch (error) {
             await this.logger.error('Failed to start server', {
                 error: error.message,

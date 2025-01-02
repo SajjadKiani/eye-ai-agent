@@ -183,8 +183,8 @@ class Server {
                         () => this.createInstance(msg, user.username),
                         1000 * 60 * 30
                     );
-                    this.instances.push({username, interval});
-                    await this.tb.bot.sendMessage(msg.chat.id, `@${username} stored to db successfully`);
+                    this.instances.push({username: user.username, interval});
+                    await this.tb.bot.sendMessage(msg.chat.id, `@${user.username} stored to db successfully`);
                 }
     
                 await this.logger.info('Instances created successfully');

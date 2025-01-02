@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const Instance = axios.create({
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://192.210.226.187:3000',
 })
 
 export const getUserAPI = (username) => 

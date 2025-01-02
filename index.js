@@ -1,7 +1,7 @@
 
 import dotenv from 'dotenv'
-import TelBot from "./TelegramBot.js";
-import TwitterScraper from './TwitterScraper.js';
+import Server from './Server.js';
+import { getUserAPI } from './api.js';
 
 
 dotenv.config();
@@ -19,67 +19,24 @@ const srcChannelId = process.env.SRC_CHANNEL_USERNAME
 const desChannelId = process.env.DES_CHANNEL_ID;
 
 (async() => {
-
-    // const ts = new TwitterScraper(
-    //     username,
-    //     password,
-    //     email,
-    //     apiKey,
-    //     apiSecretKey,
-    //     accessToken,
-    //     accessTokenSecret
-    // )
-
-    // await ts.auth()
-
-    // console.log(await ts.getMe());
-    
-
-    // await ts.scraper.sendTweetV2(
-    //     `What's got you most hyped? Let us know! 🤖💸`,
-    //     undefined,
-    //     {
-    //       poll: {
-    //         options: [
-    //           { label: 'AI Innovations 🤖' },
-    //           { label: 'Crypto Craze 💸' },
-    //           { label: 'Both! 🌌' },
-    //           { label: 'Neither for Me 😅' },
-    //         ],
-    //         durationMinutes: 120, // Duration of the poll in minutes
-    //       },
-    //     },
-    // );
-
-    // const profile = await ts.getProfile('CJCJCJCJ_')
-    // console.log(profile);
-    // console.log(profile.userId);
-
-    // await ts.auth()
-    
-    // const user = await ts.getProfile('CJCJCJCJ_')
-    // console.log(user);
-    
-    
-    // const followers = await ts.getProfileFollowers(user.userId)
-    // console.log(followers);
-
-    // const following = await ts.getProfileFollowing('1460252469745782790')
-    // console.log(following);
-
-    const bt = new TelBot(
-        telegramBotToken, 
-        desChannelId, 
-        srcChannelId, 
+    const server = new Server(
+        telegramBotToken,
+        desChannelId,
+        srcChannelId,
         username,
         password,
         email,
         apiKey,
         apiSecretKey,
         accessToken,
-        accessTokenSecret, 
+        accessTokenSecret,
         githubToken
-    )
-    await bt.openEyes()
-    
+    );
+
+    try {
+        await server.openEyes();
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
 })()

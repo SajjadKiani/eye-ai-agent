@@ -118,7 +118,7 @@ class TwitterScraper {
 
     async getProfileFollowing (userId) {
         try {
-            const following = this.scraper.getFollowing(userId, 10)
+            const following = this.scraper.fetchProfileFollowing(userId, 10)
             return following
         } catch (e) {
             console.log(e)

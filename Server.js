@@ -201,11 +201,8 @@ class Server {
             await this.ts.auth();
             
             this.tb.bot.on('message', (msg) => {
-                this.handleAddCommand(msg);
-            });
-
-            this.tb.bot.on('message', (msg) => {
-                this.handleAllCommand(msg);
+                if (msg.text.startsWith('/add')) this.handleAddCommand(msg);
+                if (msg.text.startsWith('/all')) this.handleAllCommand(msg);
             });
 
             await this.logger.info('Bot is running');

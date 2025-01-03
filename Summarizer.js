@@ -13,6 +13,7 @@ class Summarizer {
     }
 
     async summarize(tweets) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * 10))
         const tweetContent = tweets.join('\n'); // Join tweets with newlines
         const response = await this.client.path("/chat/completions").post({
             body: {
@@ -32,6 +33,7 @@ class Summarizer {
                         ` }
                 ],
                 model: this.modelName,
+                temperature: 0
             }
         });
 

@@ -2,6 +2,7 @@ import axios from 'axios'
 
 const Instance = axios.create({
     baseURL: 'https://my-agent.liara.run/',
+    proxy: false
 })
 
 export const getUserAPI = (username) => 
@@ -9,6 +10,9 @@ export const getUserAPI = (username) =>
 
 export const getUsersAPI = () =>
     Instance.get('/users')
+
+export const deleteUserAPI = (username) => 
+    Instance.delete('/users/?username=' + username)
 
 export const createUserAPI = (data) => {
     return Instance.post('/users', {

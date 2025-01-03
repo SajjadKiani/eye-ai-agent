@@ -1,4 +1,4 @@
-import { createUserAPI, getUserAPI, getUsersAPI, updateUserAPI } from "./api.js";
+import { createUserAPI, getUserAPI, getUsersAPI, updateUserAPI, deleteUserAPI } from "./api.js";
 import TelBot from "./TelegramBot.js";
 import Summarizer from "./Summarizer.js"
 import TwitterScraper from './TwitterScraper.js'
@@ -30,12 +30,18 @@ class Server {
             await this.logger.info('Handling new instance', { username });
             const userProfile = await this.ts.getProfile(username);
             const following = await this.ts.getProfileFollowing(userProfile.userId)
-            
+
             await createUserAPI({ 
                 followingCount: userProfile.followingCount, 
                 userId: userProfile.userId, 
                 username, 
                 following: following.profiles.map(f => f.username) 
+            });
+
+            await this.logger.info('User stored to database', { 
+                username,
+                followingCount: userProfile.followingCount,
+                userId: userProfile.userId
             });
             
             const interval = setInterval(
@@ -195,6 +201,43 @@ class Server {
         }
     }
 
+    async handleDeleteCommand(msg) {
+        try {
+            // Extract username from command (assuming format: /delete username)
+            if (msg.text.startsWith('/delete')) {
+                const username = msg.text.split(' ')[1];
+                if (!username) {
+                    await this.tb.bot.sendMessage(msg.chat.id, 'Please provide a Twitter username');
+                    return;
+                }
+
+                await this.logger.info('Deleting user', { username });
+
+                // Find and clear the interval for this username
+                const instanceIndex = this.instances.findIndex(inst => inst.username === username);
+                if (instanceIndex !== -1) {
+                    clearInterval(this.instances[instanceIndex].interval);
+                    this.instances.splice(instanceIndex, 1);
+                    await this.logger.info('Cleared interval for user', { username });
+                }
+
+                // Delete user from database
+                await deleteUserAPI(username);
+                await this.logger.info('User deleted from database', { username });
+                
+                await this.tb.bot.sendMessage(msg.chat.id, `@${username} deleted successfully`);
+            } else {
+                throw new Error('unknown command!');
+            }
+        } catch (error) {
+            await this.logger.error('Error handling delete command:', {
+                error: error.message,
+                stack: error.stack
+            });
+            await this.tb.bot.sendMessage(msg.chat.id, 'Error processing request: ' + error.message);
+        }
+    }
+
     async openEyes() {
         try {
             await this.logger.info('Starting server');
@@ -203,6 +246,7 @@ class Server {
             this.tb.bot.on('message', (msg) => {
                 if (msg.text.startsWith('/add')) this.handleAddCommand(msg);
                 if (msg.text.startsWith('/all')) this.handleAllCommand(msg);
+                if (msg.text.startsWith('/delete')) this.handleDeleteCommand(msg);
             });
 
             await this.logger.info('Bot is running');
